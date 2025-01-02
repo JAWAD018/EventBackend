@@ -2,7 +2,7 @@
   "name": "qr-code-app",
   "version": "1.0.0",
   "description": "QR Code Generation and User Management",
-  "main": "index.js",
+  "main": "public/index.html",
   "scripts": {
     "start": "node server.js",
     "dev": "vercel dev"
