@@ -1,0 +1,20 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "api/*.js",
+        "use": "@vercel/node"
+      },
+      {
+        "src": "public/index.html",
+        "use": "@vercel/static",
+        "config": { "maxDuration": 30 }
+      }
+    ],
+    "routes": [
+      { "src": "/api/users", "dest": "/api/users.js" },
+      { "src": "/api/generate-qr", "dest": "/api/generate-qr.js" },
+      { "src": "/api/check-qr", "dest": "/api/check-qr.js" }
+    ]
+  }
+  

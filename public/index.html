@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    form, .user-list {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .user-list {
+      margin-top: 40px;
+    }
+    .user {
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .qr-code img {
+      max-width: 150px;
+      display: block;
+    }
+    .qr-code button {
+      background-color: #007bff;
+      color: white;
+      margin-top: 10px;
+    }
+    .qr-code button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>QR Code App</h1>
+
+  <!-- User Registration Form -->
+  <form id="userForm" enctype="multipart/form-data">
+    <label for="qrCode">QR Code Data</label>
+    <input type="text" id="qrCode" name="qrCode" placeholder="Enter QR Code data" required>
+
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" placeholder="Enter your name" required>
+
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+    <label for="gender">Gender</label>
+    <input type="text" id="gender" name="gender" placeholder="Enter your gender (optional)">
+
+    <label for="group">Group</label>
+    <input type="text" id="group" name="group" placeholder="Enter your group (optional)">
+
+    <label for="photo">Photo</label>
+    <input type="file" id="photo" name="photo" accept="image/*" required>
+
+    <button type="submit">Generate QR Code & Register</button>
+  </form>
+
+  <!-- Registered Users List -->
+  <div class="user-list" id="userList">
+    <h2>Registered Users</h2>
+  </div>
+
+  <script>
+    const userForm = document.getElementById('userForm');
+    const userList = document.getElementById('userList');
+
+    // API URL
+    const API_BASE_URL = 'https://eventz-backend.vercel.app/api';
+
+    // Submit Form Handler
+    userForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData();
+      formData.append('qrCode', document.getElementById('qrCode').value);
+      formData.append('name', document.getElementById('name').value);
+      formData.append('email', document.getElementById('email').value);
+      formData.append('gender', document.getElementById('gender').value);
+      formData.append('group', document.getElementById('group').value);
+      formData.append('photo', document.getElementById('photo').files[0]);
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/users`, {
+          method: 'POST',
+          body: formData,
+        });
+        const result = await response.json();
+        if (result.success) {
+          alert('User registered successfully!');
+          fetchUsers(); // Refresh user list
+        } else {
+          alert(result.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error registering user.');
+      }
+    });
+
+    // Fetch Registered Users
+    async function fetchUsers() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/users`);
+        const result = await response.json();
+
+        if (result.success) {
+          displayUsers(result.users);
+        } else {
+          alert('Error fetching users.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    // Display Users in the List
+    function displayUsers(users) {
+      userList.innerHTML = '<h2>Registered Users</h2>';
+      users.forEach(user => {
+        const userDiv = document.createElement('div');
+        userDiv.classList.add('user');
+        userDiv.innerHTML = `
+          <img src="${user.photo}" style="width: 200px; height: 200px; object-fit: cover; border-radius: 50%; margin: 0 auto 15px;" alt="User Photo">
+          <p><strong>Name:</strong> ${user.name}</p>
+          <p><strong>Email:</strong> ${user.email}</p>
+          <p><strong>Gender:</strong> ${user.gender || 'N/A'}</p>
+          <p><strong>Group:</strong> ${user.group || 'N/A'}</p>
+          <div class="qr-code">
+            <img src="${user.qrCodeImage}" alt="QR Code">
+            <a href="${user.qrCodeImage}" download="qr-code-${user.name}.png">
+              <button>Download QR Code</button>
+            </a>
+          </div>
+        `;
+        userList.appendChild(userDiv);
+      });
+    }
+
+    // Initial Fetch
+    fetchUsers();
+  </script>
+</body>
+</html>
