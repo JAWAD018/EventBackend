@@ -8,6 +8,13 @@
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
+      background-color: #fff;
+      color: #000;
+      transition: all 0.3s ease;
+    }
+    body.dark-mode {
+      background-color: #121212;
+      color: #fff;
     }
     form, .user-list {
       max-width: 600px;
@@ -44,6 +51,7 @@
     .qr-code img {
       max-width: 150px;
       display: block;
+      border: none; /* Remove border from QR code image */
     }
     .qr-code button {
       background-color: #007bff;
@@ -53,15 +61,46 @@
     .qr-code button:hover {
       background-color: #0056b3;
     }
-    .gender-options {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-  }
+    img {
+      border: none; /* Remove border from all images */
+    }
+    .dark-mode .user {
+      background-color: #333;
+      border-color: #444;
+    }
+    /* Mobile responsiveness */
+    @media (max-width: 600px) {
+      form, .user-list {
+        max-width: 100%;
+        padding: 10px;
+      }
+      .user {
+        padding: 10px;
+      }
+    }
+    /* Dark Mode Toggle Button */
+    .dark-mode-toggle {
+      position:absolute;
+      height: 50px;
+      width: 50px;
+      top: 20px;
+      right: 20px;
+      padding: 10px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .dark-mode-toggle:hover {
+      background-color: #555;
+    }
   </style>
+  
 </head>
 <body>
   <h1>EventZ</h1>
+  <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
 
   <!-- User Registration Form -->
   <form id="userForm" enctype="multipart/form-data">
@@ -104,6 +143,23 @@
   
     // API URL
     const API_BASE_URL = 'https://event-backend-4woe.onrender.com/api';
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      // Save the user's dark mode preference in localStorage
+      const isDarkMode = document.body.classList.contains('dark-mode');
+      localStorage.setItem('darkMode', isDarkMode);
+      darkModeToggle.textContent = isDarkMode ? '🌞' : '🌙';
+    }
+
+    // Check if Dark Mode is saved in localStorage and apply
+    window.onload = () => {
+      const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+      if (savedDarkMode) {
+        document.body.classList.add('dark-mode');
+        darkModeToggle.textContent = '🌞'; // Change to sun icon
+      }
+    };
   
     // Submit Form Handler
     userForm.addEventListener('submit', async (e) => {
@@ -113,7 +169,7 @@
       formData.append('qrCode', document.getElementById('qrCode').value);
       formData.append('name', document.getElementById('name').value);
       formData.append('email', document.getElementById('email').value);
-      formData.append('gender', document.getElementById('gender').value);
+      formData.append('gender', document.querySelector('input[name="gender"]:checked')?.value); 
       formData.append('group', document.getElementById('group').value);
       formData.append('photo', document.getElementById('photo').files[0]);
   
